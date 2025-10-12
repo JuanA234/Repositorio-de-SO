@@ -1,0 +1,6 @@
+wsl --install -d Ubuntu
+sudo apt update && sudo apt upgrade -y
+sudo apt install build-essential -y
+sudo apt install gdb -y
+gcc --version
+gdb --version
