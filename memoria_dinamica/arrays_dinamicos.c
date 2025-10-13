@@ -7,6 +7,7 @@ int main()
     int *array;
 
     // array = malloc(10 * sizeof(int));
+     // array = realloc(NULL, 10 * sizeof(int));
     array = calloc(10, sizeof(int));
 
     
