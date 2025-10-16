@@ -100,8 +100,6 @@ int main()
     }else{
         int limiteInicial = delta*i;
         int limiteFinal = delta*(i+1);
-
-       
    
             for(int j = limiteInicial; j<limiteFinal; j++){
                     suma += vector[j];

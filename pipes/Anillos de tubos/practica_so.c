@@ -28,7 +28,7 @@ int main(){
 
      // Creamos N+1 pipes (para conectar circularmente todos los procesos)
     int fd[nHijos+1][2];
-    for (int i = 0; i < nHijos+1; i++) {
+    for (int i = 0; i <= nHijos; i++) {
         if (pipe(fd[i]) == -1) {
             error("Error creando el pipe");
         }
@@ -45,9 +45,11 @@ int main(){
 
     if(root==getpid()){
         
-        // Cerrar pipes innecesarios
-        for (int j = 1; j < nHijos+1; j++) close(fd[j][1]);
-        close(fd[0][0]);
+        for (int j = 0; j <= nHijos; j++) {
+            if (j != 0) close(fd[j][1]);      // Solo deja fd[0][1] abierto para escribir
+            if (j != nHijos) close(fd[j][0]); // Solo deja fd[nHijos][0] abierto para leer
+        }
+
         while(1){
             printf("Escriba el mensaje que quiera enviar: \n");
             fgets(buff, MAX_READ, stdin);
