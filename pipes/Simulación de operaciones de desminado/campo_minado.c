@@ -29,6 +29,7 @@ void imprimirMatriz(int **matriz, int filas, int columnas)
     }
 }
 
+
 int **leerArchivo(const char *nombreArchivo, int *filas, int *columnas)
 {
     FILE *f = fopen(nombreArchivo, "r");
