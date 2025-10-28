@@ -5,6 +5,8 @@
 #include <wait.h>
 #include <signal.h>
 
+
+
 void *oldhandler;
 void sighandler(int sig)
 {
@@ -40,8 +42,7 @@ int main()
         if(root==getpid()){
             for (i = 0; i < 2; i++){
             child[i] = fork();
-            if (!child[i])
-            {
+            if (!child[i]){
                 break;
             }
             else if (child[i] == -1)

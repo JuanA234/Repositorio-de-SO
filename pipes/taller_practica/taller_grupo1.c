@@ -90,7 +90,7 @@ int main(){
         for(int i=0; i<2; i++){
             while((bytes=read(fd[i][0], buffer, sizeof(buffer)))>0){
                 buffer[bytes] = '\0';
-                printf("%s", buffer);
+                printf("%s\n", buffer);
             }
             close(fd[i][0]);
         }
