@@ -259,6 +259,7 @@ int main(){
         free(lineas);
 
     }else{
+
         int readIndex = pidHijo;
         int writeIndex = pidHijo + 1;
 
