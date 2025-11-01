@@ -5,6 +5,7 @@
         "wait.h": "c",
         "stdlib.h": "c",
         "types.h": "c",
-        "signal.h": "c"
+        "signal.h": "c",
+        "cstdlib": "c"
     }
 }
