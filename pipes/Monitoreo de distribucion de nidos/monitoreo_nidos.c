@@ -69,6 +69,47 @@ int **leerArchivo(const char *nombreArchivo, int *filas, int *columnas){
     return matriz;
 }
 
+int *encontrarNidos(int **matriz, int filasTotal, int columnasTotal, int filaInicial, int filaFinal, int *parejas){
+    int *coordenadas = NULL;
+    int count = 0;
+    for(int i=filaInicial; i<filaFinal; i++){
+        for(int j=0; j<columnasTotal; j++){
+            if(matriz[i][j]==1){
+                int nidoEncontrado = 0;
+                int filaVecino;
+                int columnaVecino;
+                for(filaVecino = -3; filaVecino<=3 && !nidoEncontrado; filaVecino++){
+                    for(columnaVecino = -3; columnaVecino<=3 && !nidoEncontrado; columnaVecino++){
+                        if(filaVecino==0 && columnaVecino==0){
+                            continue;
+                        }
+
+                        int filaVecinoActual = i + filaVecino;
+                        int columnaVecinoActual = j+columnaVecino;
+
+                        if((filaVecinoActual>=0 && filaVecinoActual < filasTotal) && 
+                        (columnaVecinoActual>=0 && columnaVecinoActual<columnasTotal)){
+                            if(matriz[filaVecinoActual][columnaVecinoActual]==2){
+                                coordenadas = realloc(coordenadas, (count+1)*2*sizeof(int));
+                                if (!coordenadas)
+                                    error("Error al asignar memoria para coordenadas"); 
+                                
+                                coordenadas[count*2]= i;
+                                coordenadas[count*2 + 1]= j;
+                                count++;
+                                nidoEncontrado = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    *parejas = count;
+    return coordenadas;
+
+}
+
 int main(){
 
     int filas, columnas;
@@ -98,18 +139,81 @@ int main(){
         }
     }
 
-    if(root = getpid()){
+    if(root == getpid()){
         for(int i=0; i<NFD; i++){
             close(fd[i][1]);
         }
-    }else{
+
+        for (int i = 0; i < NHIJOS; i++) {
+            wait(NULL);
+        }
+
         for(int i=0; i<NFD; i++){
-            close(fd[i][0]);
-            if(i!=0){
-                close(fd[i][1]);
+             int parejas = 0;
+            ssize_t bytesLeidos = read(fd[i][0], &parejas, sizeof(int));
+            if(bytesLeidos == 0){
+                printf("Hijo %d no envio nada \n", i);
+                close(fd[i][0]);
+                continue;
+            }else if(bytesLeidos != sizeof(int)){
+                printf("Error de lectura en la tuberia #%d \n", i);
+                close(fd[i][0]);
+                continue;
+            }
+
+            printf("El hijo #%d envio %d coordenadas \n", i, parejas);
+            if(parejas>0){
+                int *coordenadas = malloc(parejas * 2 * sizeof(int));
+                if(!coordenadas){
+                    error("error al asignar memoria para coordenadas en el padre");
+                }
+                ssize_t bytesParaLeer = (ssize_t) parejas * 2 * sizeof(int);
+       
+                ssize_t lectura = read(fd[i][0], coordenadas, bytesParaLeer);
+                if (lectura < 0) { 
+                    error("error en la lectura de coordenadas del padre"); 
+                }
+    
+                for (int k = 0; k < parejas; k++) {
+                    printf("  (%d, %d)\n", coordenadas[k*2], coordenadas[k*2+1]);
+                }
+                free(coordenadas);
+
             }
         }
 
+    }else{
+        for(int i=0; i<NFD; i++){
+            close(fd[i][0]);
+            if(i!=pidHijo) close(fd[i][1]);
+            
+        }
+
+        int mitadMatriz = filas / 2;
+
+        int filaInicial = pidHijo*mitadMatriz;
+        int filaFinal = (pidHijo==0) ? mitadMatriz: filas;
+
+        int parejas = 0;
+        int *coordenadas = encontrarNidos(matriz, filas, columnas, filaInicial, filaFinal, &parejas);
+
+         if(write(fd[pidHijo][1], &parejas, sizeof(int)) != sizeof(int)){
+            error("Error con el hijo al escribir el número de coordenadas encontradas \n");
+        }else if(parejas>0){
+            ssize_t bytesParaEscribir = (ssize_t)parejas * 2 *sizeof(int);
+            ssize_t escritura = write(fd[pidHijo][1], coordenadas, bytesParaEscribir);
+            if (escritura <= 0) { 
+                error("error al escribir coordenadas"); 
+            }
+        }
+        
+        close(fd[pidHijo][1]);
+        free(coordenadas);
+
     }
 
+       // Liberar memoria
+    for (int i = 0; i < filas; i++)
+        free(matriz[i]);
+    free(matriz);
 }

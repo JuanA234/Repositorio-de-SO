@@ -12,6 +12,7 @@ void error(char *msg)
     exit(EXIT_FAILURE);
 }
 
+//Este ejercicio esta malo, corregir
 
 int main(){
 
