@@ -6,6 +6,8 @@
         "stdlib.h": "c",
         "types.h": "c",
         "signal.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "regex.h": "c",
+        "ctype.h": "c"
     }
 }
